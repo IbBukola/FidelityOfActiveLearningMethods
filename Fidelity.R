@@ -126,7 +126,7 @@ aggregate_student_CALEP1_transition_network <- function(folder, Instructors, tit
   
   if (vcount(g) > 0 && ecount(g) > 0) {
     plot(g,
-         edge.arrow.size = 0.1,
+         edge.arrow.size = 0.3,
          vertex.color = node_colors,
          edge.color = "gray20",
          layout = coords_custom,
@@ -183,7 +183,7 @@ aggregate_student_CALEP2_transition_network <- function(Instructor) {
   node_colors <- color_palette(100)[as.numeric(cut(V(g)$freq, breaks=100))]
   
   if (vcount(g) > 0 && ecount(g) > 0) {
-    plot(g,edge.arrow.size=0.1,vertex.color=node_colors,edge.color="gray20", layout=coords_custom,edge.curved=0.1,vertex.size=45,vertex.size2=20,edge.width=E(g)$weight*30,vertex.label.cex=1,vertex.label.color="black",vertex.shape="rectangle",main=paste("CALEP2", Instructor, "(Student)"))
+    plot(g,edge.arrow.size=0.3,vertex.color=node_colors,edge.color="gray20", layout=coords_custom,edge.curved=0.1,vertex.size=45,vertex.size2=20,edge.width=E(g)$weight*30,vertex.label.cex=1,vertex.label.color="black",vertex.shape="rectangle",main=paste("CALEP2", Instructor, "(Student)"))
   }
   return(g)
 }
@@ -236,7 +236,7 @@ aggregate_CALEP1_transition_network <- function(folder, Instructors, title = NUL
   
   if (vcount(g) > 0 && ecount(g) > 0) {
     plot(g,
-         edge.arrow.size = 0.1,
+         edge.arrow.size = 0.3,
          vertex.color = node_colors,
          edge.color = "gray20",
          layout = coords_custom,
@@ -292,7 +292,7 @@ aggregate_CALEP2_transition_network <- function(Instructor) {
   node_colors <- color_palette(100)[as.numeric(cut(V(g)$freq, breaks=100))]
   
   if (vcount(g) > 0 && ecount(g) > 0) {
-    plot(g,edge.arrow.size=0.1,vertex.color=node_colors,edge.color="gray20", 
+    plot(g,edge.arrow.size=0.3,vertex.color=node_colors,edge.color="gray20", 
          layout=coords_custom,edge.curved=0.1,vertex.size=45,
          vertex.size2=20,edge.width=E(g)$weight*30,vertex.label.cex=1,
          vertex.label.color="black",vertex.shape="rectangle",
@@ -589,15 +589,6 @@ student_plot_box_with_overlay <- function(method_name) {
       aes(x = Code, y = Frequency, fill = "High fidelity"),
       shape = 23, size = 2
     ) +
-    facet_wrap (
-      ~ Label, 
-      ncol=1, 
-      strip.position = "right", 
-      labeller = labeller(Label = function(x){
-        x <- ifelse(x == "SCALEUP", "SCALE-UP", x)  # rename SCALEUP properly
-        x <- gsub("Tutorials-", "Tutorials-\n", x)  # only break these long ones
-        return(x) }) 
-    )+  
     labs(
       x = NULL, 
       y = NULL, 
@@ -610,11 +601,6 @@ student_plot_box_with_overlay <- function(method_name) {
     scale_y_continuous(limits = c(0, 1)) +   # uniform scale
     theme_minimal(base_size = 10) +
     theme(
-      strip.text.y = element_text(
-        angle = 90, face = "bold", color = "black",
-        size = 12, margin = margin(l = 6, r = 4)
-      ),
-      strip.background = element_rect(fill = "grey90", color = NA, linewidth = 0.3),
       axis.text.x = element_text(
         face = ifelse(levels(factor(student_calep2_data$Code)) %in% bold_codes,
                       "bold", "plain"),
@@ -780,12 +766,30 @@ combined <- (p5 | p1) /
   (p7 | p3) /
   (p8 | p4)
 
-row1 <- plot_grid(p5, plot_spacer()+ theme_void(), p1, ncol = 3, rel_widths = c(1.2, 0.03, 1.2))
-row2 <- plot_grid(p6, plot_spacer()+ theme_void(), p2, ncol = 3, rel_widths = c(1.2, 0.03, 1.2))
-row3 <- plot_grid(p7, plot_spacer()+ theme_void(), p3, ncol = 3, rel_widths = c(1.2, 0.03, 1.2))
-row4 <- plot_grid(p8, plot_spacer()+ theme_void(), p4, ncol = 3, rel_widths = c(1.2, 0.03, 1.2))
+row1 <- plot_grid(
+  ggdraw() + draw_label("SCALE-UP", size = 12, hjust = 0.5),
+  plot_grid(p5, plot_spacer(), p1, ncol = 3, rel_widths = c(1.3, 0.03, 1.2)),
+  ncol = 1, rel_heights = c(0.08, 1)
+)
 
-combined <- plot_grid(row1, row2, row3, row4, ncol = 1)
+row2 <- plot_grid(
+  ggdraw() + draw_label("ISLE", size = 12, hjust = 0.5),
+  plot_grid(p6, plot_spacer(), p2, ncol = 3, rel_widths = c(1.3, 0.03, 1.2)),
+  ncol = 1, rel_heights = c(0.08, 1)
+)
+
+row3 <- plot_grid(
+  ggdraw() + draw_label("Tutorials-Recitation Only", size = 12, hjust = 0.5),
+  plot_grid(p7, plot_spacer(), p3, ncol = 3, rel_widths = c(1.3, 0.03, 1.2)),
+  ncol = 1, rel_heights = c(0.08, 1)
+)
+
+row4 <- plot_grid(
+  ggdraw() + draw_label("Tutorials-Whole Class", size = 12, hjust = 0.5),
+  plot_grid(p8, plot_spacer(), p4, ncol = 3, rel_widths = c(1.3, 0.03, 1.2)),
+  ncol = 1, rel_heights = c(0.08, 1)
+)
+combined <- plot_grid(row1, row2, row3, row4, ncol = 1, rel_heights = c(1, 1, 1, 1.15))
 combined <- plot_grid(
   ggdraw() + draw_label("Proportion of Class Time", angle = 90, size = 12, vjust = 0.5, x = 0.2, hjust = 0),
   combined,
